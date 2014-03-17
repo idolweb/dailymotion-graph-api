@@ -6,7 +6,7 @@ An unofficial gem for using Dailymotion Graph API : http://www.dailymotion.com/d
 
 You can install this gem by adding this line in your Gemfile :
 
-  gem 'dailymotion-graph-id', :git => 'git://github.com/juseveno/dailymotion-graph-id.git'
+  gem 'dailymotion-graph-id', :git => 'git@github.com:idolweb/dailymotion-graph-api.git'
 
 And then :
 
