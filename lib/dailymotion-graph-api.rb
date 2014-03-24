@@ -46,14 +46,14 @@ module DailymotionGraphApi
       r
     end
     
-    def get_infos(user)
+    def get_infos(user, additional_params = {})
       raise "Access token is required" if @access_token.nil?
       
       result = connexion.get do |request|
         request.url     "/user/#{user}"
         request.params  = {
           access_token:   @access_token
-        }
+        }.merge(additional_params)
       end
       
       r = JSON.parse(result.body)
