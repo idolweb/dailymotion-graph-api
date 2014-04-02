@@ -11,8 +11,8 @@ module DailymotionGraphApi
       @refresh_token  = refresh_token
     end
 
-    def authorize_url(callback_url)
-      "https://api.dailymotion.com/oauth/authorize?client_id=#{@client_id}&redirect_uri=#{callback_url}&response_type=code&scope=manage_videos"
+    def authorize_url(callback_url, scope_array = %w(manage_videos))
+      "https://api.dailymotion.com/oauth/authorize?client_id=#{@client_id}&redirect_uri=#{callback_url}&response_type=code&scope=#{scope_array.join('+')}"
     end
 
     def connexion
