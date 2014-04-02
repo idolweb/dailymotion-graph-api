@@ -12,7 +12,7 @@ module DailymotionGraphApi
     end
 
     def authorize_url(callback_url)
-      "https://api.dailymotion.com/oauth/authorize?client_id=#{@client_id}&redirect_uri=#{callback_url}&response_type=code"
+      "https://api.dailymotion.com/oauth/authorize?client_id=#{@client_id}&redirect_uri=#{callback_url}&response_type=code&scope=manage_videos"
     end
 
     def connexion
@@ -64,6 +64,65 @@ module DailymotionGraphApi
 
       @access_token   = r['access_token']
       @refresh_token  = r['refresh_token']
+
+      r
+    end
+    
+    def tmp_upload(video_path)
+      remote_uri = URI.parse(get_upload_url['upload_url'])
+      
+      upload_connexion = Faraday.new(:url => 'http://upload-01.dailymotion.com', :ssl => {:verify => false}) do |faraday|
+        faraday.request  :multipart
+        faraday.response :logger
+        faraday.adapter  Faraday.default_adapter
+      end
+      
+      result = upload_connexion.post do |request|
+        request.url     '/upload'
+        request.params  = remote_uri.query.split('&').collect{|item| item.split('=')}.to_h # surement plus élégant à faire
+        request.body    = {
+          file: Faraday::UploadIO.new(video_path, 'video/mp4')
+        }
+      end
+      
+      r = JSON.parse(result.body)
+      if r.keys.include?('error')
+        raise "#{r['error']}: #{r['error_description']}"
+      end
+
+      r
+    end
+    
+    def create_video(arguments)
+      result = connexion.post do |request|
+        request.url     '/me/videos'
+        request.params  = {
+          access_token:   @access_token
+        }
+        request.body    = arguments
+      end
+      
+      r = JSON.parse(result.body)
+      if r.keys.include?('error')
+        raise "#{r['error']}: #{r['error_description']}"
+      end
+
+      r
+    end
+    
+    
+    def get_upload_url
+      result = connexion.get do |request|
+        request.url     '/file/upload'
+        request.params  = {
+          access_token:   @access_token
+        }
+      end
+      
+      r = JSON.parse(result.body)
+      if r.keys.include?('error')
+        raise "#{r['error']}: #{r['error_description']}"
+      end
 
       r
     end
