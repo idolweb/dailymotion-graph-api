@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = "An unofficial gem for using the Dailymotion graph API : http://www.dailymotion.com/doc/api/graph-api.html"
   s.description = "An unofficial gem for using the Dailymotion graph API : http://www.dailymotion.com/doc/api/graph-api.html"
   s.licenses    = ["LGPL"]
-  
+
   s.rubyforge_project = "dailymotion-graph-api"
 
   s.files         = `git ls-files`.split("\n")
@@ -22,7 +22,10 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency "faraday", '~> 0.8', '>= 0.8.6'
   s.add_runtime_dependency "json", '~> 1.8', '>= 1.8.1'
-  s.required_ruby_version = '>= 2.1.0'
+
+  s.add_development_dependency "bundler", "~> 1.7.11"
+  s.add_development_dependency "rake"
+
   s.requirements << 'faraday, >= 0.8.6'
   s.requirements << 'json'
 end
