@@ -16,7 +16,7 @@ module DailymotionGraphApi
     end
 
     def connexion
-      @connexion ||= Faraday.new(:url => 'https://api.dailymotion.com', :ssl => {:verify => false}) do |faraday|
+      @connexion ||= Faraday.new(:url => 'https://api.dailymotion.com', ssl: { verify: false }) do |faraday|
         faraday.request  :url_encoded
         faraday.response :logger
         faraday.adapter  Faraday.default_adapter
@@ -24,17 +24,18 @@ module DailymotionGraphApi
     end
 
     def refresh_token
-      token('refresh_token')
+      raise 'Missing refresh token' unless @refresh_token
+      token('refresh_token', refresh_token: @refresh_token)
     end
 
     def get_access_token(code, callback_url)
-      token('authorization_code', code, callback_url)
+      token('authorization_code', redirect_uri: callback_url, code: code)
     end
 
     def tmp_upload(video_path)
       remote_uri = URI.parse(get_upload_url['upload_url'])
 
-      upload_connexion = Faraday.new(:url => 'http://upload-01.dailymotion.com', :ssl => {:verify => false}) do |faraday|
+      upload_connexion = Faraday.new(url: 'http://upload-01.dailymotion.com', ssl: { verify: false }) do |faraday|
         faraday.request  :multipart
         faraday.response :logger
         faraday.adapter  Faraday.default_adapter
@@ -110,14 +111,13 @@ module DailymotionGraphApi
       r
     end
 
-    def token(grant_type, code = nil, callback_url = nil)
+    def token(grant_type, args = {})
       r = send_request('/oauth/token', { verb: :post, auth: false, body: {
-          grant_type:     grant_type,
-          client_id:      @client_id,
-          client_secret:  @client_secret,
-          redirect_uri:   callback_url,
-          code:           code
-        } })
+            grant_type:     grant_type,
+            client_id:      @client_id,
+            client_secret:  @client_secret
+          }.merge(args)
+        })
 
       @access_token   = r['access_token']
       @refresh_token  = r['refresh_token']
